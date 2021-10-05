@@ -26,6 +26,7 @@ function App() {
     error: undefined,
     isLoading: true,
     perPage: 20,
+    page: 1,
     visibleNews: [],
   });
 

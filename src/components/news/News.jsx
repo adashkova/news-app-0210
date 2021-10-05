@@ -36,6 +36,10 @@ const News = () => {
       if (page === 0) {
         page = 1;
       }
+      setContext({
+        ...context,
+        page: page,
+      });
 
       let offset = context.perPage * page;
       let from = offset - context.perPage;
@@ -92,7 +96,7 @@ const News = () => {
     fetchComments(id);
   };
 
-  const onChange = (page, perP) => {
+  const onChange = page => {
     history.push(`?page=${page}`);
     fetchNews();
   };
@@ -117,10 +121,10 @@ const News = () => {
           />
         ))}
       <Pagination
-        defaultCurrent={context.page === 0 ? 1 : context.page}
+        defaultCurrent={query.get('page')}
         total={context.news.data.length}
         defaultPageSize={20}
-        onChange={(page, pageSize) => onChange(page, pageSize)}
+        onChange={(page, pageSize) => onChange(page)}
       />
     </>
   );
