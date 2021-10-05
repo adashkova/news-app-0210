@@ -1,16 +1,16 @@
 import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import Story from './Story';
+import Story from '../story/Story';
 import Spinner from '../spinner/Spinner';
 import { Pagination } from 'antd';
 import 'antd/dist/antd.css';
 import { Context } from '../../Context';
 import axios from 'axios';
-import { Content } from 'antd/lib/layout/layout';
 import { useQuery } from '../../hooks/useQuery';
+import { Alert } from 'antd';
 
 const News = () => {
-  const [context, setContext] = useContext(Context);
+  const { context, setContext } = useContext(Context);
   const history = useHistory();
   let query = useQuery();
 
@@ -20,15 +20,18 @@ const News = () => {
       const res = await axios.get(`${baseUrl}/${query}`);
       return res;
     } catch (error) {
-      alert(error);
+      setContext({
+        ...context,
+        error: error,
+      });
     }
   };
 
   // Get all news
 
-  const fetchNews = async () => {
+  const fetchNews = async pageSize => {
     try {
-      const storedNews = [];
+      let storedNews = [];
       const res = await fetchAllData('topstories.json?print=pretty');
 
       // Get items per page
@@ -41,8 +44,13 @@ const News = () => {
         page: page,
       });
 
-      let offset = context.perPage * page;
-      let from = offset - context.perPage;
+      let perPage = 20;
+      if (pageSize) {
+        perPage = pageSize;
+      }
+
+      let offset = +perPage * page;
+      let from = offset - +perPage;
 
       let newsItems = res.data.slice(from, offset);
 
@@ -51,14 +59,18 @@ const News = () => {
           `/item/${item}.json?print=pretty`
         );
 
-        storedNews.push({
-          id: news.data.id,
-          score: news.data.score,
-          url: news.data.url,
-          by: news.data.by,
-          title: news.data.title,
-          kids: news.data.kids,
-        });
+        storedNews = [
+          ...storedNews,
+          {
+            id: news.data.id,
+            score: news.data.score,
+            url: news.data.url,
+            by: news.data.by,
+            title: news.data.title,
+            kids: news.data.kids,
+          },
+        ];
+
         // Store news in state
         setContext({
           ...context,
@@ -68,7 +80,10 @@ const News = () => {
         });
       });
     } catch (error) {
-      alert(error);
+      setContext({
+        ...context,
+        error: error,
+      });
     }
   };
 
@@ -76,13 +91,13 @@ const News = () => {
 
   const fetchComments = async id => {
     setContext({ ...context, comments: [], isloading: true });
-    const comments = [];
+    let comments = [];
     const res = await fetchAllData(`item/${id}.json?print=pretty`);
     res.data.kids.forEach(async kid => {
       const comment = await fetchAllData(
         `/item/${kid}.json?print=pretty`
       );
-      comments.push(comment);
+      comments = [...comments, comment];
     });
 
     setContext({
@@ -93,12 +108,18 @@ const News = () => {
   };
 
   const onClick = id => {
+    history.push(`/comments`);
     fetchComments(id);
   };
 
-  const onChange = page => {
+  const onChange = (page, pageSize) => {
     history.push(`?page=${page}`);
-    fetchNews();
+
+    fetchNews(pageSize);
+    setContext({
+      ...context,
+      perPage: pageSize,
+    });
   };
 
   useEffect(() => {
@@ -106,6 +127,7 @@ const News = () => {
   }, []);
 
   if (context.isLoading) return <Spinner />;
+  if (context.error !== undefined) return <Alert />;
 
   return (
     <>
@@ -117,14 +139,19 @@ const News = () => {
             idx={idx}
             onClick={onClick}
             offset={context.offset}
-            allNews={context.news.data}
+            page={query.get('page') ? query.get('page') : 0}
+            size={
+              context.visibleNews.length
+                ? context.visibleNews.length
+                : context.perPage
+            }
           />
         ))}
       <Pagination
         defaultCurrent={query.get('page') ? query.get('page') : 1}
         total={context.news.data.length}
-        defaultPageSize={20}
-        onChange={(page, pageSize) => onChange(page)}
+        defaultPageSize={context.perPage}
+        onChange={(page, pageSize) => onChange(page, pageSize)}
       />
     </>
   );

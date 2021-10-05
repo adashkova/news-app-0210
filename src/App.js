@@ -4,7 +4,6 @@ import {
   BrowserRouter as Router,
   Route,
   Switch,
-  Redirect,
 } from 'react-router-dom';
 import { Context } from './Context';
 import Header from './components/layout/Header';
@@ -31,13 +30,13 @@ function App() {
   });
 
   return (
-    <Context.Provider value={[context, setContext]}>
+    <Context.Provider value={{ context, setContext }}>
       <Router>
+        <Header />
         <StyledContainer>
-          <Header />
           <Switch>
             <Route exact path='/' component={News} />
-            <Route path='/comments' component={Comments} />
+            <Route exact path='/comments' component={Comments} />
           </Switch>
         </StyledContainer>
       </Router>

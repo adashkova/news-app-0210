@@ -1,8 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useContext } from 'react';
-import { Context } from '../../Context';
-import { Button } from 'antd';
 
 const StyledNewsContainer = styled.div`
   display: block;
@@ -30,15 +27,14 @@ const StyledMain = styled.div`
 `;
 
 const StyledLink = styled.a`
-display: flex;
-flex-direction: row;
-align-items: center;
-
-text-decoration: none;
-color: #212121;
-cursor: pointer;
-:hover {
-color: #F0A500;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  text-decoration: none;
+  color: #212121;
+  cursor: pointer;
+  :hover {
+  color: #F0A500;
 
 `;
 

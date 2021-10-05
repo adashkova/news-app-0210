@@ -1,25 +1,28 @@
 import React, { useContext } from 'react';
-import Comment from './Comment';
+import Comment from '../comment/Comment';
 import { Context } from '../../Context';
 import Spinner from '../spinner/Spinner';
+import styled from 'styled-components';
+
+const StyledNewsContainer = styled.div`
+  display: block;
+  min-width: 80vw;
+  padding: 0 20px;
+`;
 
 const Comments = () => {
-  const [context, setContext] = useContext(Context);
+  const { context, setContext } = useContext(Context);
 
   if (context.isLoading) return <Spinner />;
   console.log(context.comments);
   return (
-    <div>
+    <StyledNewsContainer>
+      comments
       {context.comments &&
         context.comments.map(comment => {
-          return (
-            <Comment
-              key={comment.data.parent + comment.id}
-              comment={comment}
-            />
-          );
+          return <Comment key={comment.id} comment={comment} />;
         })}
-    </div>
+    </StyledNewsContainer>
   );
 };
 

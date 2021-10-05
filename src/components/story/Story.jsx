@@ -26,7 +26,6 @@ const StyledMain = styled.div`
 const StyledParagraf = styled.p`
     margin: 0 0 0 20px;
   }
-
 `;
 
 const StyledLink = styled.a`
@@ -38,7 +37,6 @@ color: #212121;
 cursor: pointer;
 :hover {
 color: #F0A500;
-
 `;
 const StyledLink2 = styled(Link)`
 display: flex;
@@ -49,23 +47,26 @@ color: #212121;
 cursor: pointer;
 :hover {
 color: #F0A500;
-
 `;
 
-export const Story = ({ news, idx, onClick }) => {
+export const Story = ({ news, idx, onClick, page, size }) => {
   const { url, title, by, score, kids, id } = news;
+
+  if (page === 0) {
+    page = 1;
+  }
+  let offset = size * +page;
+  let currentPage = offset + idx - size + 1;
 
   return (
     <StyledNewsContainer>
       <StyledMain>
-        <p>{`${idx + 1}. `}</p>
+        <p>{`${currentPage}. `}</p>
 
         <StyledLink
-          href={
-            url
-          }>{` ${title} (by ${by.toUpperCase()})`}</StyledLink>
+          href={url}
+          target='_blank'>{` ${title} (by ${by.toUpperCase()})`}</StyledLink>
       </StyledMain>
-
       <StyledMain>
         <StyledParagraf>{` ${score} points`}</StyledParagraf>
         <StyledLink2 to={`/comments`} onClick={() => onClick(id)}>
