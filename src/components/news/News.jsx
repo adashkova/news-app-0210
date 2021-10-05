@@ -121,7 +121,7 @@ const News = () => {
           />
         ))}
       <Pagination
-        defaultCurrent={query.get('page')}
+        defaultCurrent={query.get('page') ? query.get('page') : 1}
         total={context.news.data.length}
         defaultPageSize={20}
         onChange={(page, pageSize) => onChange(page)}
