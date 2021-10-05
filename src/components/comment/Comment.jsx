@@ -26,20 +26,8 @@ const StyledMain = styled.div`
   }
 `;
 
-const StyledLink = styled.a`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  text-decoration: none;
-  color: #212121;
-  cursor: pointer;
-  :hover {
-  color: #F0A500;
-
-`;
-
 export const Comment = ({ comment }) => {
-  const { text, by, time } = comment.data;
+  const { text, by } = comment.data;
 
   return (
     <StyledNewsContainer>

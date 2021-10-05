@@ -11,10 +11,10 @@ const StyledNewsContainer = styled.div`
 `;
 
 const Comments = () => {
-  const { context, setContext } = useContext(Context);
+  const { context } = useContext(Context);
 
   if (context.isLoading) return <Spinner />;
-  console.log(context.comments);
+
   return (
     <StyledNewsContainer>
       comments

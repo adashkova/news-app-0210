@@ -6,9 +6,9 @@ import {
   Switch,
 } from 'react-router-dom';
 import { Context } from './Context';
-import Header from './components/layout/Header';
 import Comments from './components/comments/Comments';
 import News from './components/news/News';
+import Navbar from './components/layout/Navbar';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -32,7 +32,7 @@ function App() {
   return (
     <Context.Provider value={{ context, setContext }}>
       <Router>
-        <Header />
+        <Navbar />
         <StyledContainer>
           <Switch>
             <Route exact path='/' component={News} />

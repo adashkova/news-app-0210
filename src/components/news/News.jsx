@@ -1,13 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import Story from '../story/Story';
-import Spinner from '../spinner/Spinner';
 import { Pagination } from 'antd';
-import 'antd/dist/antd.css';
 import { Context } from '../../Context';
-import axios from 'axios';
 import { useQuery } from '../../hooks/useQuery';
 import { Alert } from 'antd';
+import axios from 'axios';
+import Story from '../story/Story';
+import Spinner from '../spinner/Spinner';
+import 'antd/dist/antd.css';
 
 const News = () => {
   const { context, setContext } = useContext(Context);
@@ -26,9 +26,7 @@ const News = () => {
       });
     }
   };
-
   // Get all news
-
   const fetchNews = async pageSize => {
     try {
       let storedNews = [];
@@ -70,7 +68,6 @@ const News = () => {
             kids: news.data.kids,
           },
         ];
-
         // Store news in state
         setContext({
           ...context,
@@ -86,9 +83,7 @@ const News = () => {
       });
     }
   };
-
   // Fetch comments
-
   const fetchComments = async id => {
     setContext({ ...context, comments: [], isloading: true });
     let comments = [];
@@ -114,7 +109,6 @@ const News = () => {
 
   const onChange = (page, pageSize) => {
     history.push(`?page=${page}`);
-
     fetchNews(pageSize);
     setContext({
       ...context,
