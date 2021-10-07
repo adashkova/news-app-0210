@@ -13,7 +13,7 @@ const StyledContainer = styled.div`
   margin: 0 auto;
   background-color: #e6e6e6;
 `;
-git
+
 function App() {
   const [newsContext, setContext] = useState({
     news: [],
