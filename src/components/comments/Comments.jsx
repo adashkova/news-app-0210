@@ -1,25 +1,29 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Comment from '../comment/Comment';
-import { Context } from '../../Context';
+import { NewsContext } from '../../NewsContext';
 import Spinner from '../spinner/Spinner';
 import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
 
 const StyledNewsContainer = styled.div`
   display: block;
   min-width: 80vw;
   padding: 0 20px;
+  hieght: 100vh;
 `;
 
 const Comments = () => {
-  const { context } = useContext(Context);
+  const { id } = useParams();
 
-  if (context.isLoading) return <Spinner />;
+  const { newsContext } = useContext(NewsContext);
 
+  const { comments, hasComments } = newsContext;
+
+  if (!hasComments) return <Spinner />;
   return (
     <StyledNewsContainer>
-      comments
-      {context.comments &&
-        context.comments.map(comment => {
+      {comments &&
+        comments.map(comment => {
           return <Comment key={comment.id} comment={comment} />;
         })}
     </StyledNewsContainer>

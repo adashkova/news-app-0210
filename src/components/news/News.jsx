@@ -1,152 +1,98 @@
 import React, { useContext, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Pagination } from 'antd';
-import { Context } from '../../Context';
+import { NewsContext } from '../../NewsContext';
 import { useQuery } from '../../hooks/useQuery';
 import { Alert } from 'antd';
-import axios from 'axios';
 import Story from '../story/Story';
 import Spinner from '../spinner/Spinner';
+import Fetcher from '../../fetcher';
+import styled from 'styled-components';
 import 'antd/dist/antd.css';
 
+const StyledMargin = styled.div`
+  margin-bottom: 20px;
+`;
+
 const News = () => {
-  const { context, setContext } = useContext(Context);
+  const { newsContext, setContext } = useContext(NewsContext);
   const history = useHistory();
   let query = useQuery();
 
-  const fetchAllData = async query => {
-    try {
-      const baseUrl = `https://hacker-news.firebaseio.com/v0`;
-      const res = await axios.get(`${baseUrl}/${query}`);
-      return res;
-    } catch (error) {
-      setContext({
-        ...context,
-        error: error,
-      });
-    }
-  };
-  // Get all news
-  const fetchNews = async pageSize => {
-    try {
-      let storedNews = [];
-      const res = await fetchAllData('topstories.json?print=pretty');
-
-      // Get items per page
-      let page = +query.get('page');
-      if (page === 0) {
-        page = 1;
-      }
-      setContext({
-        ...context,
-        page: page,
-      });
-
-      let perPage = 20;
-      if (pageSize) {
-        perPage = pageSize;
-      }
-
-      let offset = +perPage * page;
-      let from = offset - +perPage;
-
-      let newsItems = res.data.slice(from, offset);
-
-      newsItems.forEach(async item => {
-        const news = await fetchAllData(
-          `/item/${item}.json?print=pretty`
-        );
-
-        storedNews = [
-          ...storedNews,
-          {
-            id: news.data.id,
-            score: news.data.score,
-            url: news.data.url,
-            by: news.data.by,
-            title: news.data.title,
-            kids: news.data.kids,
-          },
-        ];
-        // Store news in state
-        setContext({
-          ...context,
-          news: res,
-          isLoading: false,
-          visibleNews: storedNews,
-        });
-      });
-    } catch (error) {
-      setContext({
-        ...context,
-        error: error,
-      });
-    }
-  };
-  // Fetch comments
-  const fetchComments = async id => {
-    setContext({ ...context, comments: [], isloading: true });
-    let comments = [];
-    const res = await fetchAllData(`item/${id}.json?print=pretty`);
-    res.data.kids.forEach(async kid => {
-      const comment = await fetchAllData(
-        `/item/${kid}.json?print=pretty`
-      );
-      comments = [...comments, comment];
-    });
-
-    setContext({
-      ...context,
-      comments: comments,
-      isLoading: false,
-    });
-  };
-
-  const onClick = id => {
-    history.push(`/comments`);
-    fetchComments(id);
-  };
+  const fetcher = Fetcher;
 
   const onChange = (page, pageSize) => {
-    history.push(`?page=${page}`);
-    fetchNews(pageSize);
+    let offset = 0;
+    if (page === 1) {
+      offset = 0;
+    } else {
+      offset = page * pageSize - pageSize;
+    }
+
     setContext({
-      ...context,
+      ...newsContext,
+      page: page,
       perPage: pageSize,
+      offset: offset,
     });
+    history.push(`?page=${page}`);
   };
 
   useEffect(() => {
-    fetchNews();
+    setContext({
+      ...newsContext,
+      isLoading: true,
+    });
+    fetcher
+      .fetchNews('topstories.json?print=pretty')
+      .then(res => {
+        return Promise.all(res.map(item => fetcher.fetchItems(item)));
+      })
+      .then(news => {
+        let offset = 0;
+        let page = 1;
+        if (+query.get('page') === 1 || +query.get('page') === 0) {
+          offset = 0;
+          page = 1;
+        } else {
+          offset = +query.get('page') * 20 - newsContext.perPage;
+          page = +query.get('page');
+        }
+        setContext({
+          ...newsContext,
+          news: news,
+          page: page,
+          isLoading: false,
+          offset: offset,
+        });
+      });
   }, []);
 
-  if (context.isLoading) return <Spinner />;
-  if (context.error !== undefined) return <Alert />;
+  const { page, perPage, offset, news, isLoading, error } = newsContext;
+
+  if (isLoading) return <Spinner />;
+  if (error !== undefined) return <Alert />;
 
   return (
     <>
-      {context.visibleNews &&
-        context.visibleNews.map((news, idx) => (
-          <Story
-            key={news.id}
-            news={news}
-            idx={idx}
-            onClick={onClick}
-            offset={context.offset}
-            page={query.get('page') ? query.get('page') : 0}
-            size={
-              context.visibleNews.length
-                ? context.visibleNews.length
-                : context.perPage
-            }
-          />
-        ))}
+      {news &&
+        news
+          .slice(offset, offset + perPage)
+          .map((news, idx) => (
+            <Story
+              key={news.id}
+              news={news}
+              idx={idx}
+              offset={offset}
+            />
+          ))}
       <Pagination
-        defaultCurrent={query.get('page') ? query.get('page') : 1}
-        total={context.news.data.length}
-        defaultPageSize={context.perPage}
+        defaultCurrent={page || page !== 0 ? page : 1}
+        total={500}
+        defaultPageSize={perPage}
         onChange={(page, pageSize) => onChange(page, pageSize)}
       />
+      <StyledMargin />
     </>
   );
 };

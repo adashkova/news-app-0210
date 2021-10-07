@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Context } from '../../Context';
+import { NewsContext } from '../../NewsContext';
 import { Layout } from 'antd';
 import styled from 'styled-components';
 import 'antd/dist/antd.css';
@@ -20,23 +20,25 @@ const StyledLink = styled(Link)`
 `;
 
 const Navbar = () => {
-  const { context, setContext } = useContext(Context);
+  const { newsContext, setContext } = useContext(NewsContext);
 
   const history = useHistory();
 
   const onClick = () => {
     history.push(`/?page=1`);
     setContext({
-      ...context,
+      ...newsContext,
       page: 1,
+      offset: 0,
+      perPage: 20,
     });
   };
 
   return (
-    <Header>
+    <Header >
       <h2>
-        <StyledLink to='/?page=1' onClick={() => onClick()}>
-          <i className='fas fa-newspaper'></i> News
+        <StyledLink to="/?page=1" onClick={() => onClick()}>
+          <i className="fas fa-newspaper"></i> News
         </StyledLink>
       </h2>
     </Header>

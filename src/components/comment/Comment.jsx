@@ -1,18 +1,19 @@
-import React from 'react';
 import styled from 'styled-components';
 
 const StyledNewsContainer = styled.div`
-  display: block;
+  display: flex;
+  justify-content: center;
   min-width: 80vw;
-  flex-direction: column;
-  padding: 0 20px;
 `;
+
 const StyledMain = styled.div`
   display: flex;
-  min-width: 80%;
   flex-direction: column;
-  border: 1px solid #212121;
-  margin: 5px;
+  max-width: 700px;
+  border: 1px solid #b2b1b9;
+  border-radius: 3px;
+  word-break: break-all;
+  margin: 5px 0;
   padding: 10px;
   p,
   a,
@@ -24,15 +25,24 @@ const StyledMain = styled.div`
     background-color: #e6e6e6;
     cursor: pointer;
   }
+  ,
+  p {
+    width: 95%;
+  }
 `;
 
 export const Comment = ({ comment }) => {
-  const { text, by } = comment.data;
+  const { text, by: athor } = comment;
 
   return (
     <StyledNewsContainer>
       <StyledMain>
-        <p>{`Comment by ${by}. `}</p>
+        <h4>
+          {athor &&
+            `Comment by ${athor.charAt(0).toUpperCase()}${athor.slice(
+              1
+            )}. `}
+        </h4>
         <p>{text}</p>
       </StyledMain>
     </StyledNewsContainer>
